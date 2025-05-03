@@ -4,15 +4,16 @@
 
 Pada era e-commerce saat ini, jumlah produk yang tersedia di platform online, khususnya di sektor fashion, terus meningkat pesat. Pengguna sering kali merasa kewalahan ("choice overload") ketika harus menelusuri ribuan item untuk menemukan yang sesuai dengan preferensi mereka. fenomena ini dapat menurunkan kepuasan dan konversi karena pengguna cenderung menyerah sebelum melakukan pembelian. Hal ini dapat menurunkan efektivitas platform e-commerce dalam mencapai tujuan bisnis, terutama dalam meningkatkan engagement dan konversi penjualan.
 
-Sistem rekomendasi telah menjadi solusi kunci untuk personalisasi pengalaman belanja online. Dengan memanfaatkan data atribut produk (content-based filtering) dan pola interaksi pengguna (collaborative filtering), platform e-commerce dapat:
+
 
 Dalam sistem rekomendasi algoritma yang umum digunakan adalah collaborative
 filtering(CF) dan content based filtering(CB). collaborative filtering adalah suatu konsep
 dimana opini dari pengguna lain yang ada digunakan untuk memprediksi item yang
 mungkin disukai/diminati oleh seorang pengguna. Sadangkan content based filtering
 menggunakan ketersediaan konten sebuah item sebagai basis dalam pemberian
-rekomendasi. 
+rekomendasi. <sup>1</sup>
 
+Sistem rekomendasi telah menjadi solusi kunci untuk personalisasi pengalaman belanja online. Dengan memanfaatkan data atribut produk (content-based filtering) dan pola interaksi pengguna (collaborative filtering), platform e-commerce dapat:
 
 1. **Mempersempit Pilihan**  
    Menyajikan subset produk yang relevan bagi setiap pengguna sehingga mereka tidak perlu menelusuri seluruh katalog.
@@ -21,12 +22,8 @@ rekomendasi.
    Rekomendasi yang tepat sasaran dapat meningkatkan Click-Through Rate (CTR) dan Purchase Rate.
 
    
- A. Eko Wijaya, D. Alfian, “Sistem Rekomendasi Laptop Menggunakan Collaborative Filtering dan Content-Based Filtering,” *Jurnal Computech & Bisnis*, vol. 12, no. 1, pp. 11–27, Juni 2018.
+[1] A. Eko Wijaya, D. Alfian, “Sistem Rekomendasi Laptop Menggunakan Collaborative Filtering dan Content-Based Filtering,” *Jurnal Computech & Bisnis*, vol. 12, no. 1, pp. 11–27, Juni 2018.
 ## Business Understanding
-
-Pada bagian ini, Anda perlu menjelaskan proses klarifikasi masalah.
-
-Bagian laporan ini mencakup:
 
 ### Problem Statements
 
@@ -41,9 +38,6 @@ Bagian laporan ini mencakup:
    Menyajikan daftar produk yang sesuai dengan preferensi pengguna—berdasarkan kategori, brand, warna, dan ukuran—agar mereka lebih cepat menemukan item yang diinginkan.  
 2. **Meningkatkan Engagement & Konversi**  
    Meningkatkan Click-Through Rate (CTR) dan Purchase Rate melalui rekomendasi yang relevan, sehingga mendorong peningkatan penjualan dan kepuasan pengguna.  
-
-Semua poin di atas harus diuraikan dengan jelas. Anda bebas menuliskan berapa pernyataan masalah dan juga goals yang diinginkan.
-
 
 
    ### Solution statements
@@ -72,6 +66,11 @@ Dataset ini tersedia di: [Fashion Product Recommendation Dataset (Kaggle)](https
 - `Color`: Warna utama dari produk (misal: Black, White, Yellow).
 - `Size`: Ukuran produk (misal: S, M, L, XL).
 
+| User ID | Product ID | Product Name | Brand | Category | Price | Rating | Color | Size |
+|---------|------------|--------------|-------|----------|-------|--------|-------|------|
+| 0       | 0          | 0            | 0     | 0        | 0     | 0      | 0     | 0    |
+
+
 Kondisi data bagus dan tidak terdapat nilai null
 
 ### Exploratory Data Analysis (EDA)
@@ -90,16 +89,19 @@ Kondisi data bagus dan tidak terdapat nilai null
 
 5. **Distribusi Rating**  
    Rating produk cukup bervariasi dari 1 hingga 5, dengan sedikit dominasi pada rating 3.0. Hal ini menunjukkan adanya persebaran opini konsumen yang cukup luas terhadap kualitas produk.
-   ![image](https://github.com/user-attachments/assets/62dc03c3-17b6-4dab-801b-ccb8b3d37e19)
+
+   
+![image](https://github.com/user-attachments/assets/62dc03c3-17b6-4dab-801b-ccb8b3d37e19)
 ![image](https://github.com/user-attachments/assets/87559cc5-7a69-4b65-9a6c-9123870ff06c)
 ![image](https://github.com/user-attachments/assets/4e70e43c-e3cd-4eb9-a5da-89db9371b91c)
 ![image](https://github.com/user-attachments/assets/83c0dd4e-1366-4757-8560-573e75b88539)
 
 ## Data Preparation
 
-Pada tahap ini, dilakukan serangkaian proses untuk mempersiapkan data agar dapat digunakan dalam proses pemodelan, khususnya untuk penerapan metode *Content-Based Filtering*. Adapun tahapan-tahapan data preparation yang dilakukan adalah sebagai berikut:
+Pada tahap ini, dilakukan serangkaian proses untuk mempersiapkan data agar dapat digunakan dalam proses pemodelan, khususnya untuk penerapan metode *Content-Based Filtering* dan *collaborative filtering* . Adapun tahapan-tahapan data preparation yang dilakukan adalah sebagai berikut:
 
-### 1. Menggabungkan Fitur Teks
+### Data preparation untuk Content Base FIltering
+1. Menggabungkan Fitur Teks
 
 ```python
 df['gabung_fitur'] = (
@@ -122,7 +124,8 @@ Pada pendekatan Collaborative Filtering, proses data preparation dilakukan untuk
 
 ---
 
-### 1. Encoding `User ID` dan `Product ID` menjadi integer
+### Data Preparation untuk model collaborative filtering
+1. Encoding `User ID` dan `Product ID` menjadi integer
 
 ```python
 user_ids   = df['User ID'].unique().tolist()
@@ -149,14 +152,23 @@ df['rating_norm'] = df['Rating'].astype(np.float32).apply(
     lambda x: (x - min_r) / (max_r - min_r)
 )
 ```
-Model menggunakan fungsi aktivasi sigmoid pada layer output, yang hanya menghasilkan nilai dalam rentang [0, 1]. Oleh karena itu, semua nilai rating perlu dinormalisasi ke skala yang sama agar target output model berada dalam rentang yang sesuai. Ini penting untuk mencegah kesalahan prediksi besar akibat perbedaan skala.
 
+
+```python
+x = df[['user','item']].values
+y = df['rating_norm'].values
+
+split = int(0.8 * len(df))
+x_train, x_val = x[:split], x[split:]
+y_train, y_val = y[:split], y[split:]
+```
+Proporsi spiling yang di lakukan sebesar 80/20 di mana 80% untuk training dan 20% untuk validasi
 ## Modeling
 
 Pada tahapan ini, dibuat dua model sistem rekomendasi dengan pendekatan yang berbeda, yaitu:
 
 1. **Content-Based Filtering** menggunakan  cosine similarity
-2. **Collaborative Filtering** menggunakan Collaborative Filtering 
+2. **Collaborative Filtering** menggunakan Neuron
 
 Kedua pendekatan ini digunakan untuk memberikan **top-N recommendation**, dengan kelebihan dan keterbatasan masing-masing.
 
@@ -165,70 +177,72 @@ Kedua pendekatan ini digunakan untuk memberikan **top-N recommendation**, dengan
 
 Pendekatan Content-Based Filtering merekomendasikan produk berdasarkan kemiripan antar produk, tanpa melihat interaksi pengguna lain. Untuk mengukur kemiripan, digunakan **TF-IDF vectorizer** terhadap fitur produk yang relevan seperti nama produk, merek, kategori, warna, dan ukuran.
 
+ sistem content-based filtering menggunakan metode cosine similarity untuk merekomendasikan produk yang mirip berdasarkan fitur seperti Product Name, Brand, Category, Color, dan Size.
+```python
+from sklearn.metrics.pairwise import cosine_similarity
+cosine_sim = cosine_similarity(tfidf_matrix)
+cosine_sim_df = pd.DataFrame(
+    cosine_sim,
+    index = df['Product Name'] + ' (' + df.index.astype(str) + ')',
+    columns = df['Product Name'] + ' (' + df.index.astype(str) + ')'
+)
+```
+
+| Product Name | Brand  | Category       | Color | Size | Similarity Score |
+|--------------|--------|----------------|-------|------|------------------|
+| Dress        | Adidas | Men's Fashion  | Black | XL   | 1.000000         |
+| Dress        | Adidas | Men's Fashion  | Black | M    | 0.912964         |
+| Jeans        | Adidas | Men's Fashion  | Black | XL   | 0.794962         |
+| Dress        | H&M    | Men's Fashion  | Black | L    | 0.793917         |
+| Dress        | H&M    | Men's Fashion  | Black | L    | 0.793917         |
+
+
+Hasilnya, sistem menampilkan lima produk teratas dengan skor kemiripan tertinggi, yang menunjukkan seberapa dekat karakteristik produk tersebut dengan produk awal.
 ### 📌 2. Collaborative Filtering (Neural CF)
 Model ini merekomendasikan produk berdasarkan interaksi historis antara pengguna dan produk. Menggunakan teknik Neural Collaborative Filtering (NCF) dengan arsitektur embedding.
 
+```python
+model = RecommenderNet(num_users, num_items, embedding_size=32)
+model.compile(
+    loss=keras.losses.BinaryCrossentropy(),
+    optimizer=keras.optimizers.Adam(learning_rate=1e-3),
+    metrics=[keras.metrics.RootMeanSquaredError()]
+)
+
+history = model.fit(
+    x_train, y_train,
+    validation_data=(x_val, y_val),
+    epochs=50,
+    batch_size=16,
+    verbose=1
+)
+```
+Dalam model Neural Collaborative Filtering di atas, setiap pengguna dan produk direpresentasikan sebagai vektor (embedding) yang dipelajari selama proses pelatihan. Model ini kemudian belajar mengenali hubungan antara pengguna dan item berdasarkan interaksi sebelumnya menggunakan kombinasi dari vektor tersebut. Model yang telah dilatih dapat memprediksi seberapa besar kemungkinan seorang pengguna menyukai item tertentu yang belum pernah mereka interaksikan sebelumnya. 
+
+| Product Name | Brand  | Category        | Color | Size | Similarity Score |
+|--------------|--------|-----------------|-------|------|------------------|
+| T-shirt      | Adidas | Women's Fashion | Red   | L    | 0.812085         |
+| Shoes        | Nike   | Men's Fashion   | White | S    | 0.810829         |
+| T-shirt      | Gucci  | Kids' Fashion   | White | M    | 0.803815         |
+| Dress        | Nike   | Women's Fashion | Red   | XL   | 0.784409         |
+| Sweater      | Gucci  | Women's Fashion | Blue  | XL   | 0.782826         |
+
+ Hasil rekomendasi menampilkan 5 produk teratas berdasarkan skor kemiripan tertinggi
+
 ## Evaluation
 
-### 1. **Item-Based Collaborative Filtering**
 
-**Metrik yang Digunakan**: *Cosine Similarity*
-
-Pada pendekatan ini, sistem merekomendasikan item yang paling mirip dengan item yang telah diberi rating tinggi oleh pengguna sebelumnya. Kemiripan antar item dihitung menggunakan **cosine similarity**, yang secara matematis dirumuskan sebagai:
-
-Nilai cosine similarity berada dalam rentang 0 hingga 1, di mana nilai mendekati 1 menunjukkan bahwa dua item sangat mirip. Meskipun tidak ada metrik akurasi eksplisit seperti RMSE yang dihitung, efektivitas model dievaluasi berdasarkan relevansi rekomendasi.
-
-Contoh hasil:
-- Untuk pengguna dengan ID `5`, sistem merekomendasikan item:
-  - *Shoes*
-  - *Dress*
-  - *Sweater*
-  - *T-shirt*
- 
-    
-![image](https://github.com/user-attachments/assets/31c03c50-d3f4-4581-a6aa-5463ad7e40cb)
-
-Item-item tersebut memiliki skor kemiripan tinggi dengan item yang telah dinilai pengguna sebelumnya, menunjukkan bahwa sistem dapat mengidentifikasi preferensi pengguna berdasarkan hubungan antar item.
-
----
-
-### 2. **Neural Collaborative Filtering (NCF)**
-
-**Metrik yang Digunakan**: 
-- *Binary Crossentropy* sebagai fungsi loss
-- *Root Mean Squared Error (RMSE)* sebagai metrik evaluasi
+| Kriteria                                              | Content-Based Filtering (CBF)                                  | Collaborative Filtering (Neural CF)                                              |
+| ----------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| **Metode**                                            |  Cosine Similarity                                     | Neural Collaborative Filtering (NCF)                                             |
+| **Acuan Produk**                                      | Dress                                                          | Dress (berdasarkan interaksi pengguna)                                           |
+| **Top-5 Produk yang Direkomendasikan**                | Semua produk memiliki kata kunci/kategori mirip dengan "Dress" | Tidak ada satu pun produk bertipe "Dress"                                        |
+| **Akurasi (berdasarkan kesesuaian terhadap "Dress")** | **80%** (4 dari 5 produk sangat mirip atau identik)            | **0%** (tidak ada produk bertipe "Dress")                                        |
+| **Relevansi Kontekstual**                             | Tinggi: Semua produk mirip dalam kategori, brand, warna        | Rendah: Produk direkomendasikan berdasarkan pola, tapi tidak mirip secara konten |
+| **Kelebihan**                                         | Bisa mengenali kesamaan fitur antar produk, meskipun user baru | Bisa memberikan rekomendasi berbasis pola umum pengguna                          |
+| **Kekurangan**                                        | Tidak mempertimbangkan preferensi pengguna                     | Jika data interaksi kurang, hasil bisa tidak relevan                             |
 
 
-
-
-
-Hasil evaluasi:
-- **RMSE Training**: `0.0077`
-- **RMSE Validation**: `0.2799`
-
-Nilai RMSE menunjukkan bahwa model cukup baik dalam mempelajari pola interaksi pengguna terhadap item. Meskipun terdapat sedikit gap antara training dan validation, hal ini masih tergolong wajar untuk dataset yang terbatas.
-
-Contoh hasil:
-- Untuk pengguna ID `5`, sistem merekomendasikan:
-  - *Shoes - Adidas* (skor: **0.7789**)
-  - *Dress - Adidas* (skor: **0.7462**)
-  - *Sweater - Nike* (skor: **0.7283**)
-  - *Shirt - Adidas* (skor: **0.7259**)
-  - *T-shirt - Adidas* (skor: **0.7156**)
-
-Model ini berhasil menangkap interaksi kompleks antara pengguna dan item melalui pendekatan berbasis neural network.
-
----
-
-### Perbandingan Model
-
-| Aspek                          | Item-Based Collaborative Filtering | Neural Collaborative Filtering |
-|-------------------------------|------------------------------------|-------------------------------|
-| Teknik                        | Similaritas antar item             | Neural network berbasis embedding |
-| Interpretasi                  | Mudah dan transparan               | Lebih kompleks                |
-| Akurasi Prediksi              | Bergantung pada kualitas similarity | Lebih tinggi                  |
-| Hasil Rekomendasi             | Berdasarkan kemiripan item         | Berdasarkan interaksi pengguna-item |
-| RMSE                          | -                                  | 0.2799 (validation)           |
 
 ---
 ## ✅ Apakah Problem Statement Sudah Terjawab?
@@ -243,30 +257,42 @@ Model Content-Based Filtering membantu pengguna menyaring ribuan produk dengan m
 > Rekomendasi untuk produk "Dress" menampilkan item lain dengan brand, warna, dan kategori serupa, sehingga mempersempit pilihan dengan relevansi tinggi.
 
 #### 2. **Relevansi Rekomendasi yang Rendah**
-✔ **Terjawab melalui Collaborative Filtering dan Content-Based Filtering**  
-- **Collaborative Filtering** meningkatkan relevansi rekomendasi dengan menganalisis pola pembelian pengguna lain yang serupa.  
+✔ **Terjawab melalui  Content-Based Filtering**  
+  
 - **Content-Based Filtering** menyesuaikan rekomendasi dengan karakteristik produk yang sudah pernah disukai oleh pengguna.
-
-> **Hasil evaluasi** menunjukkan bahwa model Collaborative Filtering menghasilkan skor RMSE yang rendah, menunjukkan bahwa prediksi rating cukup akurat dan relevan.
-
 ---
 
 ### 🎯 Apakah Goals Sudah Tercapai?
 
 #### 1. **Mempermudah Penemuan Produk**
 ✔ **Tercapai**  
-Kedua pendekatan rekomendasi (CBF dan CF) mempercepat proses pencarian produk yang relevan, mengurangi waktu pengguna dalam menjelajah seluruh katalog produk.
+pendekatan rekomendasi  Content-Based Filtering mempercepat proses pencarian produk yang relevan, mengurangi waktu pengguna dalam menjelajah seluruh katalog produk.
 
 #### 2. **Meningkatkan Engagement & Konversi**
 ✔ ** Tercapai**  
-Metrik RMSE yang rendah dari Collaborative Filtering serta kemiripan tinggi dari Content-Based Filtering mengindikasikan bahwa sistem rekomendasi dapat **meningkatkan engagement** melalui relevansi, yang dalam praktiknya **dapat mendorong konversi dan kepuasan pengguna**.
+Rekomendasi yang tepat sasaran akan meningkatkan interaksi pengguna terhadap produk yang direkomendasikan (CTR) dan mendorong pembelian (conversion rate), sehingga memberikan dampak langsung pada peningkatan penjualan dan loyalitas pengguna.
 
 ---
 
 ### 🔍 Kesimpulan
 
-Baik **problem statements** maupun **goals** telah dijawab dan ditangani secara tepat melalui implementasi dua model rekomendasi:
-- **Content-Based Filtering** membantu pengguna menemukan produk serupa dengan preferensi mereka.
-- **Collaborative Filtering** merekomendasikan produk berdasarkan perilaku pengguna lain yang serupa.
+### 🔍 1. Content-Based Filtering (CBF)
+
+**Deskripsi:**  
+Menggunakan pendekatan berbasis konten (fitur produk), sistem menganalisis atribut seperti *Product Name*, *Brand*, *Category*, *Color*, dan *Size* untuk merekomendasikan produk yang mirip dengan yang pernah dilihat atau disukai pengguna.
+
+**Hasil Evaluasi:**  
+Dengan produk acuan **"Dress"**, metode CBF menunjukkan **akurasi tinggi (80%)**, karena mampu mengenali produk-produk dengan kesamaan fitur secara eksplisit dan terstruktur.
+
+---
+
+### 🤝 2. Collaborative Filtering (Neural CF)
+
+**Deskripsi:**  
+Mengandalkan pola interaksi pengguna terhadap produk, seperti klik, rating, atau pembelian. Sistem merekomendasikan item yang disukai oleh pengguna lain dengan pola preferensi serupa, tanpa melihat konten produk secara langsung.
+
+**Hasil Evaluasi:**  
+Pada skenario pengujian berbasis produk **"Dress"**, metode ini belum memberikan hasil relevan (**akurasi 0%**) karena ketergantungan pada data interaksi pengguna, yang kemungkinan masih terbatas atau belum mencerminkan preferensi spesifik tersebut.
+
 
 
