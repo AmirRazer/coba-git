@@ -46,17 +46,17 @@ Semua poin di atas harus diuraikan dengan jelas. Anda bebas menuliskan berapa pe
 
 
 
-    ### Solution statements
-    ### 1. Content-Based Filtering
+   ### Solution statements
+   #### 1. Content-Based Filtering
 - **Deskripsi**: Merekomendasikan produk dengan atribut serupa (Brand, Category, Color, Size) terhadap produk yang pernah dilihat atau disukai user.
-    ### 2. Collaborative Filtering 
+   #### 2. Collaborative Filtering 
 - **Deskripsi**: Menggunakan pola rating atau histori interaksi antar pengguna (User-User CF) atau antar produk (Item-Item CF) untuk merekomendasikan item yang disukai oleh pengguna serupa.
 
-  ## Data Understanding
+## Data Understanding
 
 Dataset yang digunakan dalam proyek ini adalah **Fashion Product Recommendation Dataset**, yang berisi data interaksi pengguna dengan produk fashion di sebuah platform. Dataset ini digunakan untuk membangun sistem rekomendasi yang mampu menyarankan produk fashion yang relevan kepada pengguna berdasarkan preferensi dan karakteristik produk.
 
-Dataset ini terdiri dari **1.000+ baris data** yang mencakup informasi seperti **User ID**, **Product ID**, serta atribut konten dari setiap produk, seperti **Nama Produk**, **Brand**, **Kategori**, **Harga**, **Rating**, **Warna**, dan **Ukuran**. Dataset ini bersifat **fiktif namun realistis**, dan dapat digunakan untuk eksperimen sistem rekomendasi berbasis content dan collaborative filtering.
+Dataset ini terdiri dari **1.000 baris data** yang mencakup informasi seperti **User ID**, **Product ID**, serta atribut konten dari setiap produk, seperti **Nama Produk**, **Brand**, **Kategori**, **Harga**, **Rating**, **Warna**, dan **Ukuran**. Dataset ini bersifat **fiktif namun realistis**, dan dapat digunakan untuk eksperimen sistem rekomendasi berbasis content dan collaborative filtering.
 
 Dataset ini tersedia di: [Fashion Product Recommendation Dataset (Kaggle)](https://www.kaggle.com/datasets/bhanupratapbiswas/fashion-products)
 
@@ -71,6 +71,8 @@ Dataset ini tersedia di: [Fashion Product Recommendation Dataset (Kaggle)](https
 - `Rating`: Rating produk yang diberikan pengguna, dalam skala 1–5.
 - `Color`: Warna utama dari produk (misal: Black, White, Yellow).
 - `Size`: Ukuran produk (misal: S, M, L, XL).
+
+Kondisi data bagus dan tidak terdapat nilai null
 
 ### Exploratory Data Analysis (EDA)
 
@@ -153,8 +155,8 @@ Model menggunakan fungsi aktivasi sigmoid pada layer output, yang hanya menghasi
 
 Pada tahapan ini, dibuat dua model sistem rekomendasi dengan pendekatan yang berbeda, yaitu:
 
-1. **Content-Based Filtering** menggunakan TF-IDF dan cosine similarity
-2. **Collaborative Filtering** menggunakan Neural Collaborative Filtering (NCF)
+1. **Content-Based Filtering** menggunakan  cosine similarity
+2. **Collaborative Filtering** menggunakan Collaborative Filtering 
 
 Kedua pendekatan ini digunakan untuk memberikan **top-N recommendation**, dengan kelebihan dan keterbatasan masing-masing.
 
